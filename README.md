@@ -62,13 +62,14 @@ rm -r .venv   # On Unix/macOS
 1. **Add movies** to your watchlist (with release date)
 2. **View upcoming movies** (movies releasing after today)
 3. **View all movies** in the database
-4. **Mark movies as watched** (per user)
-5. **View watched movies** (per user)
+4. **Mark movies as watched** (per user, with optional review and rating)
+5. **View watched movies** (per user, with reviews/ratings)
 6. **Add users** to the app
 7. **Search movies** by partial title (case-insensitive)
-8. **Plan to watch a movie** (per user)
-9. **View planned movies** (per user)
-10. **Exit** the app
+8. **Plan to watch a movie** (per user, with optional expectation)
+9. **View planned movies** (per user, with expectations)
+10. **See all reviews for a movie**
+11. **Exit** the app
 
 ---
 
@@ -77,7 +78,10 @@ rm -r .venv   # On Unix/macOS
 - When prompted, select an option by entering the corresponding number.
 - Add users before marking or planning movies as watched.
 - Dates must be entered in `dd-mm-YYYY` format.
-- Movie IDs are shown in the movie lists and are required for marking or planning as watched.
+- Movie IDs are shown in the movie lists and are required for marking, planning, or reviewing.
+- You can add a review and rating (out of 100) when marking a movie as watched.
+- You can add an "expectation" when planning to watch a movie.
+- View all reviews and ratings for a movie by selecting the appropriate menu option.
 
 ---
 
@@ -91,4 +95,4 @@ rm -r .venv   # On Unix/macOS
 
 ## License
 
-This project is for educational and personal use. Feel free
+This project is for educational and personal use. Feel free to modify or extend it.
