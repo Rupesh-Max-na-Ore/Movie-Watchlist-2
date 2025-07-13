@@ -14,6 +14,8 @@ CREATE_USERS_TABLE = """CREATE TABLE IF NOT EXISTS users (
 CREATE_WATCHED_TABLE = """CREATE TABLE IF NOT EXISTS watched (
     user_username TEXT,
     movie_id INTEGER,
+    review TEXT,
+    rating INTEGER,
     FOREIGN KEY(user_username) REFERENCES users(username),
     FOREIGN KEY(movie_id) REFERENCES movies(id),
     UNIQUE(user_username, movie_id)
@@ -22,14 +24,17 @@ CREATE_WATCHED_TABLE = """CREATE TABLE IF NOT EXISTS watched (
 CREATE_PLANNED_TABLE = """CREATE TABLE IF NOT EXISTS planned (
     user_username TEXT,
     movie_id INTEGER,
+    expectation TEXT,
     FOREIGN KEY(user_username) REFERENCES users(username),
     FOREIGN KEY(movie_id) REFERENCES movies(id),
     UNIQUE(user_username, movie_id)
 );"""
 
-INSERT_PLANNED_MOVIE = "INSERT INTO planned (user_username, movie_id) VALUES (?, ?);"
+INSERT_PLANNED_MOVIE = (
+    "INSERT INTO planned (user_username, movie_id, expectation) VALUES (?, ?, ?);"
+)
 DELETE_PLANNED_MOVIE = "DELETE FROM planned WHERE user_username = ? AND movie_id = ?;"
-SELECT_PLANNED_MOVIES = """SELECT movies.* FROM movies
+SELECT_PLANNED_MOVIES = """SELECT movies.*, planned.expectation FROM movies
 JOIN planned ON movies.id = planned.movie_id
 WHERE planned.user_username = ?;"""
 
@@ -39,11 +44,13 @@ INSERT_USER = "INSERT INTO users (username) VALUES (?);"
 DELETE_MOVIE = "DELETE FROM movies WHERE title = ?;"
 SELECT_ALL_MOVIES = "SELECT * FROM movies;"
 SELECT_UPCOMING_MOVIES = "SELECT * FROM movies WHERE release_timestamp > ?;"
-SELECT_WATCHED_MOVIES = """SELECT movies.* FROM movies
+SELECT_WATCHED_MOVIES = """SELECT movies.*, watched.review, watched.rating FROM movies
 JOIN watched ON movies.id = watched.movie_id
 JOIN users ON users.username = watched.user_username
 WHERE users.username = ?;"""
-INSERT_WATCHED_MOVIE = "INSERT INTO watched (user_username, movie_id) VALUES (?, ?);"
+INSERT_WATCHED_MOVIE = (
+    "INSERT INTO watched (user_username, movie_id, review, rating) VALUES (?, ?, ?, ?);"
+)
 SET_MOVIE_WATCHED = "UPDATE movies SET watched = 1 WHERE title = ?;"
 SEARCH_MOVIES = "SELECT * FROM movies WHERE title LIKE ? COLLATE NOCASE;"
 GET_ALL_USERS = "SELECT username FROM users;"
@@ -93,7 +100,7 @@ def search_movies(search_term):
         return cursor.fetchall()
 
 
-def watch_movie(username, movie_id):
+def watch_movie(username, movie_id, review=None, rating=None):
     with connection:
         # Add user if not exists
         connection.execute(
@@ -127,14 +134,9 @@ def get_all_users():
         return [row[0] for row in cursor.fetchall()]
 
 
-def plan_movie(username, movie_id):
+def plan_movie(username, movie_id, expectation=None):
     with connection:
-        connection.execute(INSERT_PLANNED_MOVIE, (username, movie_id))
-
-
-def unplan_movie(username, movie_id):
-    with connection:
-        connection.execute(DELETE_PLANNED_MOVIE, (username, movie_id))
+        connection.execute(INSERT_PLANNED_MOVIE, (username, movie_id, expectation))
 
 
 def get_planned_movies(username):
@@ -142,3 +144,8 @@ def get_planned_movies(username):
         cursor = connection.cursor()
         cursor.execute(SELECT_PLANNED_MOVIES, (username,))
         return cursor.fetchall()
+
+
+def unplan_movie(username, movie_id):
+    with connection:
+        connection.execute(DELETE_PLANNED_MOVIE, (username, movie_id))

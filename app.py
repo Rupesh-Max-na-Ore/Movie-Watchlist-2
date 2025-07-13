@@ -32,15 +32,6 @@ def prompt_add_movie():
     database.add_movie(title, timestamp)
 
 
-def print_movie_list(heading, movies):
-    print(f"-- {heading} movies --")
-    for _id, title, release_date in movies:
-        movie_date = datetime.datetime.fromtimestamp(release_date)
-        human_date = movie_date.strftime("%b %d, %Y")
-        print(f"{_id}: {title} (on {human_date})")
-    print("---- \n")
-
-
 def prompt_watch_movie():
     # Show all users
     users = database.get_all_users()
@@ -76,7 +67,11 @@ def prompt_watch_movie():
         print(f"Movie ID '{movie_id}' does not exist! Please enter a valid movie ID.")
         return
 
-    database.watch_movie(username, movie_id)
+    review = input("Enter your review (optional): ")
+    rating = input("Enter your rating out of 100 (optional): ")
+    rating = int(rating) if rating.strip().isdigit() else None
+
+    database.watch_movie(username, movie_id, review, rating)
 
 
 def prompt_add_user():
@@ -131,8 +126,30 @@ def prompt_plan_movie():
         print(f"Movie ID '{movie_id}' does not exist! Please enter a valid movie ID.")
         return
 
-    database.plan_movie(username, movie_id)
+    expectation = input("What are your expectations for this movie? (optional): ")
+    database.plan_movie(username, movie_id, expectation)
     print(f"Movie ID {movie_id} planned for user '{username}'.")
+
+
+def print_movie_list(heading, movies):
+    print(f"-- {heading} movies --")
+    for movie in movies:
+        _id, title, release_date = movie[:3]
+        movie_date = datetime.datetime.fromtimestamp(release_date)
+        human_date = movie_date.strftime("%b %d, %Y")
+        print(f"{_id}: {title} (on {human_date})")
+        if len(movie) > 3:
+            # For planned movies, expectation is at index 3
+            expectation = movie[3] if heading == "Planned" else None
+            review = movie[3] if heading != "Planned" else None
+            rating = movie[4] if heading != "Planned" else None
+            if expectation:
+                print(f"   Expectation: {expectation}")
+            if review:
+                print(f"   Review: {review}")
+            if rating is not None:
+                print(f"   Rating: {rating}/100")
+    print("---- \n")
 
 
 def prompt_show_planned_movies():
