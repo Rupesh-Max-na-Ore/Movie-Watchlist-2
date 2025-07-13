@@ -1,0 +1,4 @@
+.venv/
+Notes/
+__pycache__/
+data.db
