@@ -117,7 +117,7 @@ def watch_movie(username, movie_id, review=None, rating=None):
                 f"User '{username}' has already marked movie ID {movie_id} as watched."
             )
             return
-        connection.execute(INSERT_WATCHED_MOVIE, (username, movie_id))
+        connection.execute(INSERT_WATCHED_MOVIE, (username, movie_id, review, rating))
 
 
 def get_watched_movies(username):
