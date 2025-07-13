@@ -149,3 +149,17 @@ def get_planned_movies(username):
 def unplan_movie(username, movie_id):
     with connection:
         connection.execute(DELETE_PLANNED_MOVIE, (username, movie_id))
+
+
+def get_reviews_for_movie(movie_id):
+    with connection:
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+            SELECT user_username, review, rating
+            FROM watched
+            WHERE movie_id = ? AND (review IS NOT NULL OR rating IS NOT NULL)
+            """,
+            (movie_id,),
+        )
+        return cursor.fetchall()

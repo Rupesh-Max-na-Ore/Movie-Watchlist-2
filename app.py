@@ -12,7 +12,8 @@ menu = """Please select one of the following options:
 7) Search movies.
 8) Plan to watch a movie.
 9) View planned movies.
-10) Exit.
+10) See all reviews for a movie.
+11) Exit.
 Your selection: """
 
 WELCOME = "Welcome to the watchlist app!"
@@ -161,7 +162,34 @@ def prompt_show_planned_movies():
         print(f"{username} has no planned movies yet!")
 
 
-while (user_input := input(menu)) != "10":
+def prompt_show_reviews_for_movie():
+    movies = database.get_movies()
+    if not movies:
+        print("No movies found. Please add a movie first.")
+        return
+    print("Available movies:")
+    for _id, title, release_date in movies:
+        print(f"{_id}: {title}")
+    movie_id = input("Enter the Movie ID to see all reviews: ")
+    movie_ids = [str(_id) for _id, _, _ in movies]
+    if movie_id not in movie_ids:
+        print("Invalid Movie ID.")
+        return
+    reviews = database.get_reviews_for_movie(movie_id)
+    if reviews:
+        print(f"-- Reviews for movie ID {movie_id} --")
+        for username, review, rating in reviews:
+            print(f"User: {username}")
+            if review:
+                print(f"  Review: {review}")
+            if rating is not None:
+                print(f"  Rating: {rating}/100")
+            print("----")
+    else:
+        print("No reviews or ratings found for this movie.")
+
+
+while (user_input := input(menu)) != "11":
     if user_input == "1":
         prompt_add_movie()
     elif user_input == "2":
@@ -182,5 +210,7 @@ while (user_input := input(menu)) != "10":
         prompt_plan_movie()
     elif user_input == "9":
         prompt_show_planned_movies()
+    elif user_input == "10":
+        prompt_show_reviews_for_movie()
     else:
         print("Invalid input, please try again!")
